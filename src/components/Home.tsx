@@ -8,13 +8,15 @@ import {
   OutlinedInput,
   MenuItem,
   Select,
+  FormControl,
+  InputLabel,
+  CircularProgress,
 } from "@mui/material";
 import { makeStyles } from "@material-ui/core/styles";
 import { Search } from "@material-ui/icons";
 import useFetch from "../hooks/useFetch";
 import MovieCard from "./MovieCard";
 import type { MovieItemProp } from "../types";
-import { CircularProgress } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   search: {
@@ -92,6 +94,7 @@ const Home = () => {
   };
 
   const handlePagination = (_: ChangeEvent<unknown>, page: number) => {
+    console.log(page);
     setPage(page);
   };
 
@@ -99,12 +102,9 @@ const Home = () => {
     setSearch(target.value);
   };
 
-  if (error) {
-    return <div className="movie__error">{error}</div>;
-  }
-  if (!movies) {
-    return <CircularProgress color="inherit" />;
-  }
+  if (error) return <div className="movie__error">{error}</div>;
+
+  if (!movies) return <CircularProgress color="inherit" />;
 
   return (
     <Box padding={10}>
@@ -119,22 +119,29 @@ const Home = () => {
           onChange={handleSearch}
           placeholder="Search"
         />
-        <Select
-          value={genre}
-          onChange={handleGenre}
-          label="Genre"
-          className={classes.select}
-          input={<OutlinedInput label="Genre" />}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {genres?.genres?.map(({ id, name }: { id: number; name: string }) => (
-            <MenuItem key={id} value={id}>
-              {name}
+        <FormControl>
+          <InputLabel id="select-label">Genre</InputLabel>
+          <Select
+            labelId="select-label"
+            id="simple-select"
+            value={genre}
+            onChange={handleGenre}
+            label="Genre"
+            className={classes.select}
+            input={<OutlinedInput label="Genre" />}
+          >
+            <MenuItem value="">
+              <em>None</em>
             </MenuItem>
-          ))}
-        </Select>
+            {genres?.genres?.map(
+              ({ id, name }: { id: number; name: string }) => (
+                <MenuItem key={id} value={id}>
+                  {name}
+                </MenuItem>
+              )
+            )}
+          </Select>
+        </FormControl>
       </div>
 
       <Button variant="text" onClick={prevPage} disabled={page <= 1}>
@@ -156,6 +163,7 @@ const Home = () => {
       </ImageList>
       <div className={classes.pagination}>
         <Pagination
+          page={page}
           count={10}
           variant="outlined"
           color="primary"
