@@ -1,10 +1,20 @@
 import React, { useState, ChangeEvent } from "react";
-import { ImageList, Button, Box, Pagination, InputBase } from "@mui/material";
+import {
+  ImageList,
+  Button,
+  Box,
+  Pagination,
+  InputBase,
+  OutlinedInput,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { makeStyles } from "@material-ui/core/styles";
 import { Search } from "@material-ui/icons";
 import useFetch from "../hooks/useFetch";
 import MovieCard from "./MovieCard";
 import type { MovieItemProp } from "../types";
+import { CircularProgress } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   search: {
@@ -12,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexWrap: "nowrap",
     marginBottom: "20px",
+    marginRight: "20px",
   },
   icon: {
     position: "absolute",
@@ -31,12 +42,24 @@ const useStyles = makeStyles((theme) => ({
     transition: theme.transitions.create("background"),
     background: "rgba(0, 0, 0, 0.05)",
     borderRadius: theme.shape.borderRadius,
+    marginRight: "20px",
     width: "100%",
     "&:focus, &:hover": {
       background: "rgba(0, 0, 0, 0.065)",
     },
     "&:focus": {
       minWidth: 400,
+    },
+  },
+  select: {
+    color: "inherit",
+    padding: 4,
+    transition: theme.transitions.create("background"),
+    background: "rgba(0, 0, 0, 0.05)",
+    borderRadius: theme.shape.borderRadius,
+    minWidth: 150,
+    "&:focus, &:hover": {
+      background: "rgba(0, 0, 0, 0.065)",
     },
   },
   pagination: {
@@ -49,8 +72,12 @@ const useStyles = makeStyles((theme) => ({
 const Home = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [genre, setGenre] = useState();
+
   const classes = useStyles();
-  const { data, error } = useFetch({ page, search }) as any;
+
+  const { data: movies, error } = useFetch({ page, search, genre }) as any;
+  const { data: genres } = useFetch({ genre: "all" }) as any;
 
   const nextPage = () => {
     setPage(page + 1);
@@ -60,16 +87,23 @@ const Home = () => {
     setPage(page - 1);
   };
 
+  const handleGenre = ({ target: { value } }: any) => {
+    setGenre(value);
+  };
+
   const handlePagination = (_: ChangeEvent<unknown>, page: number) => {
     setPage(page);
   };
 
-  const handleSearch = ({ target }: any) => {
+  const handleSearch = ({ target }: ChangeEvent<HTMLInputElement>) => {
     setSearch(target.value);
   };
 
   if (error) {
     return <div className="movie__error">{error}</div>;
+  }
+  if (!movies) {
+    return <CircularProgress color="inherit" />;
   }
 
   return (
@@ -85,7 +119,24 @@ const Home = () => {
           onChange={handleSearch}
           placeholder="Search"
         />
+        <Select
+          value={genre}
+          onChange={handleGenre}
+          label="Genre"
+          className={classes.select}
+          input={<OutlinedInput label="Genre" />}
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          {genres?.genres?.map(({ id, name }: { id: number; name: string }) => (
+            <MenuItem key={id} value={id}>
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
       </div>
+
       <Button variant="text" onClick={prevPage} disabled={page <= 1}>
         Prev
       </Button>
@@ -99,7 +150,7 @@ const Home = () => {
         rowHeight={"auto"}
         sx={{ overflowY: "initial" }}
       >
-        {data?.results?.map((item: MovieItemProp) => (
+        {movies.results?.map((item: MovieItemProp) => (
           <MovieCard {...item} />
         ))}
       </ImageList>

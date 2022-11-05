@@ -1,8 +1,21 @@
 import { useParams } from "react-router-dom";
-import { Container, Grid, Typography, makeStyles } from "@material-ui/core";
+import {
+  Container,
+  Grid,
+  Typography,
+  makeStyles,
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  Divider,
+  ListItemText,
+  CircularProgress,
+} from "@material-ui/core";
 import Rating from "@material-ui/lab/Rating";
 import useFetch from "../hooks/useFetch";
 import { IMG_BASE } from "../constants";
+import type { ReviewProp } from "../types";
 
 const useStyles = makeStyles(() => ({
   movieContainer: {
@@ -69,114 +82,158 @@ const useStyles = makeStyles(() => ({
     listStyle: "none",
     padding: 0,
   },
+  list: {
+    padding: "20px",
+  },
 }));
 
 const Movie = () => {
   const { id } = useParams();
   const classes = useStyles();
   const { data } = useFetch({ id }) as any;
+  const { data: reviews } = useFetch({ review: id }) as any;
 
-  if (!data) return null;
+  if (!data) return <CircularProgress color="inherit" />;
 
   return (
-    <main style={{ position: "relative" }}>
-      <div className={classes.backdrop}>
-        <img
-          className={classes.backdropImage}
-          src={`${IMG_BASE}/${data?.backdrop_path}`}
-          alt={"Backdrop of " + data?.title}
-        />
-      </div>
+    <>
+      <main style={{ position: "relative" }}>
+        <div className={classes.backdrop}>
+          <img
+            className={classes.backdropImage}
+            src={`${IMG_BASE}/${data.backdrop_path}`}
+            alt={"Backdrop of " + data.title}
+          />
+        </div>
 
-      <Container className={classes.movieContainer}>
-        <Grid container spacing={7}>
-          <Grid item md={3}>
-            <img
-              className={classes.poster}
-              src={`${IMG_BASE}/${data?.poster_path}`}
-              alt={"Poster of " + data?.title}
-            />
-          </Grid>
-          <Grid item md={8} style={{ color: "white" }}>
-            <div className={classes.releaseDate}>{data?.release_date}</div>
-            <Typography
-              variant={"h4"}
-              style={{ fontWeight: "bold" }}
-              component={"h1"}
-            >
-              {data?.title}
-            </Typography>
-            <ul className={classes.genreList}>
-              {data.genres?.map(({ id, name }: any) => (
-                <li className={classes.genre} key={id}>
-                  {name}
-                </li>
-              ))}
-            </ul>
-            <div className={classes.vote}>
-              <Rating value={data?.vote_average / 2} readOnly />
-              <span style={{ margin: "2px 0px 0 6px" }}>
-                {data?.vote_average}/10
-              </span>
-            </div>
-            <div style={{ marginTop: 10 }}>
-              <Typography component={"div"} style={{ marginRight: 15 }}>
-                <b>Duration:</b> {data?.duration} min.
+        <Container className={classes.movieContainer}>
+          <Grid container spacing={7}>
+            <Grid item md={3}>
+              <img
+                className={classes.poster}
+                src={`${IMG_BASE}/${data.poster_path}`}
+                alt={"Poster of " + data.title}
+              />
+            </Grid>
+            <Grid item md={8} style={{ color: "white" }}>
+              <div className={classes.releaseDate}>{data.release_date}</div>
+              <Typography
+                variant={"h4"}
+                style={{ fontWeight: "bold" }}
+                component={"h1"}
+              >
+                {data.title}
               </Typography>
-              <Typography component={"div"}>
-                <b>Budget:</b> {data?.budget ? "$" + data?.budget : "-"}
-              </Typography>
-            </div>
-            {data?.legend && (
-              <>
-                <h3 className={classes.subtitle}>Legend</h3>
-                <Typography variant={"body1"}>{data?.legend}</Typography>
-              </>
-            )}
-            {data?.overview && (
-              <>
-                <h3 className={classes.subtitle}>Overview</h3>
-                <Typography variant={"body1"}>{data?.overview}</Typography>
-              </>
-            )}
-            {data?.credits?.crew?.length && (
-              <>
-                <h3 className={classes.subtitle}>Crew</h3>
-                <Grid
-                  container
-                  spacing={3}
-                  component="ul"
-                  className={classes.crewList}
-                >
-                  {data?.credits?.crew
-                    .slice(0, 4)
-                    .map((person: any, i: number) => (
-                      <Grid
-                        item
-                        md={3}
-                        sm={6}
-                        component="li"
-                        key={i}
-                        style={{ paddingRight: 16 }}
-                      >
-                        <Typography
-                          variant={"body2"}
-                          style={{ fontWeight: "bold" }}
+              <ul className={classes.genreList}>
+                {data.genres?.map(({ id, name }: any) => (
+                  <li className={classes.genre} key={id}>
+                    {name}
+                  </li>
+                ))}
+              </ul>
+              <div className={classes.vote}>
+                <Rating value={data.vote_average / 2} readOnly />
+                <span style={{ margin: "2px 0px 0 6px" }}>
+                  {data.vote_average}/10
+                </span>
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <Typography component={"div"} style={{ marginRight: 15 }}>
+                  <b>Duration:</b> {data.duration} min.
+                </Typography>
+                <Typography component={"div"}>
+                  <b>Budget:</b> {data.budget ? "$" + data?.budget : "-"}
+                </Typography>
+              </div>
+              {data.legend && (
+                <>
+                  <h3 className={classes.subtitle}>Legend</h3>
+                  <Typography variant={"body1"}>{data.legend}</Typography>
+                </>
+              )}
+              {data?.overview && (
+                <>
+                  <h3 className={classes.subtitle}>Overview</h3>
+                  <Typography variant={"body1"}>{data?.overview}</Typography>
+                </>
+              )}
+              {data.credits?.crew?.length && (
+                <>
+                  <h3 className={classes.subtitle}>Crew</h3>
+                  <Grid
+                    container
+                    spacing={3}
+                    component="ul"
+                    className={classes.crewList}
+                  >
+                    {data.credits?.crew
+                      .slice(0, 4)
+                      .map((person: any, i: number) => (
+                        <Grid
+                          item
+                          md={3}
+                          sm={6}
+                          component="li"
+                          key={i}
+                          style={{ paddingRight: 16 }}
                         >
-                          {person.name}
-                        </Typography>
-                        <Typography variant={"body2"}>
-                          {person.department}, {person.job}
-                        </Typography>
-                      </Grid>
-                    ))}
-                </Grid>
-              </>
-            )}
+                          <Typography
+                            variant={"body2"}
+                            style={{ fontWeight: "bold" }}
+                          >
+                            {person.name}
+                          </Typography>
+                          <Typography variant={"body2"}>
+                            {person.department}, {person.job}
+                          </Typography>
+                        </Grid>
+                      ))}
+                  </Grid>
+                </>
+              )}
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
-    </main>
+        </Container>
+      </main>
+      {reviews.results && (
+        <List className={classes.list}>
+          {reviews.results.map(
+            ({ author_details, content, author }: ReviewProp, i: number) => {
+              return (
+                <>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar
+                        alt={author_details.name}
+                        src={`${IMG_BASE}/${author_details.avatar_path}`}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={author}
+                      secondary={
+                        <>
+                          <Typography component="span" variant="body2">
+                            {author}
+                          </Typography>
+                          {content}
+                        </>
+                      }
+                    />
+                  </ListItem>
+                  {reviews.results.length !== i + 1 && (
+                    <Divider
+                      variant="inset"
+                      component="li"
+                      style={{ maxWidth: "90%" }}
+                    />
+                  )}
+                </>
+              );
+            }
+          )}
+        </List>
+      )}
+    </>
   );
 };
 

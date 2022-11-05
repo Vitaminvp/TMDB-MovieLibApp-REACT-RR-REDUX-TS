@@ -11,4 +11,12 @@ export interface FetchProp {
   page?: number;
   id?: string;
   search?: string;
+  genre?: string;
+  review?: string;
+}
+
+export interface ReviewProp {
+  author_details: { name: string; avatar_path: string };
+  content: string;
+  author: string;
 }
