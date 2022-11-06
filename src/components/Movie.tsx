@@ -15,7 +15,12 @@ import {
 import Rating from "@material-ui/lab/Rating";
 import useFetch from "../hooks/useFetch";
 import { IMG_BASE } from "../constants";
-import type { ReviewProp } from "../types";
+import type {
+  GenreProp,
+  ReviewProp,
+  MovieItemProp,
+  PersonProp,
+} from "../types";
 
 const useStyles = makeStyles(() => ({
   movieContainer: {
@@ -90,8 +95,10 @@ const useStyles = makeStyles(() => ({
 const Movie = () => {
   const { id } = useParams();
   const classes = useStyles();
-  const { data } = useFetch({ id }) as any;
-  const { data: reviews } = useFetch({ review: id }) as any;
+  const { data } = useFetch({ id }) as unknown as { data: MovieItemProp };
+  const { data: reviews } = useFetch({ review: id }) as unknown as {
+    data: { results: ReviewProp[] };
+  };
 
   if (!data) return <CircularProgress color="inherit" />;
 
@@ -125,7 +132,7 @@ const Movie = () => {
                 {data.title}
               </Typography>
               <ul className={classes.genreList}>
-                {data.genres?.map(({ id, name }: any) => (
+                {data.genres?.map(({ id, name }: GenreProp) => (
                   <li className={classes.genre} key={id}>
                     {name}
                   </li>
@@ -168,7 +175,7 @@ const Movie = () => {
                   >
                     {data.credits?.crew
                       .slice(0, 4)
-                      .map((person: any, i: number) => (
+                      .map((person: PersonProp, i: number) => (
                         <Grid
                           item
                           md={3}

@@ -26,9 +26,12 @@ export const getUrl = ({ id, page, search, genre, review }: FetchProp) => {
   }
 };
 
-export const debounce = (func: (...args: any[]) => string, timeout = 300) => {
+export const debounce = (
+  func: (...args: unknown[]) => string,
+  timeout = 300
+) => {
   let timer: NodeJS.Timeout;
-  return (...args: any[]) => {
+  return (...args: unknown[]) => {
     clearTimeout(timer);
     timer = setTimeout(() => {
       return func(...args);

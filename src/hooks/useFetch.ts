@@ -14,7 +14,7 @@ const useFetch = (props: FetchProp) => {
       .then((response) => {
         setData(response.data);
       })
-      .catch((error: any) => {
+      .catch((error) => {
         setError(error.response.data.status_message);
       });
   }, [url]);
